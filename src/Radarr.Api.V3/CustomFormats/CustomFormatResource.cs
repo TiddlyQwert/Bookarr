@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using NzbDrone.Core.CustomFormats;
+using Radarr.Http.ClientSchema;
 using Radarr.Http.REST;
 
 namespace Radarr.Api.V3.CustomFormats
@@ -11,8 +13,7 @@ namespace Radarr.Api.V3.CustomFormats
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public override int Id { get; set; }
         public string Name { get; set; }
-        public string FormatTags { get; set; }
-        public string Simplicity { get; set; }
+        public List<CustomFormatSpecificationSchema> Specifications { get; set; }
     }
 
     public static class CustomFormatResourceMapper
@@ -23,7 +24,7 @@ namespace Radarr.Api.V3.CustomFormats
             {
                 Id = model.Id,
                 Name = model.Name,
-                FormatTags = string.Join(",", model.FormatTags.Select(t => t.Raw.ToUpper()).ToList()),
+                Specifications = model.Specifications.Select(x => x.ToSchema()).ToList(),
             };
         }
 
@@ -43,8 +44,18 @@ namespace Radarr.Api.V3.CustomFormats
             {
                 Id = resource.Id,
                 Name = resource.Name,
-                FormatTags = resource.FormatTags.Split(',').Select(s => new FormatTag(s)).ToList()
+                Specifications = resource.Specifications.Select(MapSpecification).ToList()
             };
+        }
+
+        private static ICustomFormatSpecification MapSpecification(CustomFormatSpecificationSchema resource)
+        {
+            var type = Type.GetType("NzbDrone.Core.CustomFormats." + resource.Implementation + ", Radarr.Core", true);
+            var spec = (ICustomFormatSpecification)SchemaBuilder.ReadFromSchema(resource.Fields, type);
+            spec.Name = resource.Name;
+            spec.Negate = resource.Negate;
+            spec.Required = resource.Required;
+            return spec;
         }
     }
 }

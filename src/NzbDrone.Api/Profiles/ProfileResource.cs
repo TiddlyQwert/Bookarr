@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using NzbDrone.Api.CustomFormats;
 using NzbDrone.Api.Qualities;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Languages;

@@ -16,7 +16,6 @@ namespace NzbDrone.Core.CustomFormats
         List<CustomFormat> ParseCustomFormat(MovieFile movieFile);
         List<CustomFormat> ParseCustomFormat(Blacklist blacklist);
         List<CustomFormat> ParseCustomFormat(History.History history);
-        List<CustomFormatMatchResult> MatchFormatTags(ParsedMovieInfo movieInfo);
     }
 
     public class CustomFormatCalculationService : ICustomFormatCalculationService
@@ -36,64 +35,30 @@ namespace NzbDrone.Core.CustomFormats
 
         public List<CustomFormat> ParseCustomFormat(ParsedMovieInfo movieInfo)
         {
-            return MatchFormatTags(movieInfo)
-                .Where(m => m.GoodMatch)
-                .Select(r => r.CustomFormat)
-                .ToList();
-        }
-
-        public List<CustomFormat> ParseCustomFormat(MovieFile movieFile)
-        {
-            return MatchFormatTags(movieFile)
-                .Where(m => m.GoodMatch)
-                .Select(r => r.CustomFormat)
-                .ToList();
-        }
-
-        public List<CustomFormat> ParseCustomFormat(Blacklist blacklist)
-        {
-            return MatchFormatTags(blacklist)
-                .Where(m => m.GoodMatch)
-                .Select(r => r.CustomFormat)
-                .ToList();
-        }
-
-        public List<CustomFormat> ParseCustomFormat(History.History history)
-        {
-            return MatchFormatTags(history)
-                .Where(m => m.GoodMatch)
-                .Select(r => r.CustomFormat)
-                .ToList();
-        }
-
-        public List<CustomFormatMatchResult> MatchFormatTags(ParsedMovieInfo movieInfo)
-        {
             var formats = _formatService.All();
 
-            var matches = new List<CustomFormatMatchResult>();
+            var matches = new List<CustomFormat>();
 
             foreach (var customFormat in formats)
             {
-                var tagTypeMatches = customFormat.FormatTags
-                    .GroupBy(t => t.TagType)
-                    .Select(g => new FormatTagMatchesGroup
+                var specificationMatches = customFormat.Specifications
+                    .GroupBy(t => t.GetType())
+                    .Select(g => new SpecificationMatchesGroup
                     {
-                        Type = g.Key,
-                        Matches = g.ToDictionary(t => t, t => t.DoesItMatch(movieInfo))
+                        Matches = g.ToDictionary(t => t, t => t.IsSatisfiedBy(movieInfo))
                     })
                     .ToList();
 
-                matches.Add(new CustomFormatMatchResult
+                if (specificationMatches.All(x => x.DidMatch))
                 {
-                    CustomFormat = customFormat,
-                    GroupMatches = tagTypeMatches
-                });
+                    matches.Add(customFormat);
+                }
             }
 
             return matches;
         }
 
-        private List<CustomFormatMatchResult> MatchFormatTags(MovieFile file)
+        public List<CustomFormat> ParseCustomFormat(MovieFile file)
         {
             var info = new ParsedMovieInfo
             {
@@ -113,10 +78,10 @@ namespace NzbDrone.Core.CustomFormats
                 }
             };
 
-            return MatchFormatTags(info);
+            return ParseCustomFormat(info);
         }
 
-        private List<CustomFormatMatchResult> MatchFormatTags(Blacklist blacklist)
+        public List<CustomFormat> ParseCustomFormat(Blacklist blacklist)
         {
             var parsed = _parsingService.ParseMovieInfo(blacklist.SourceTitle, null);
 
@@ -137,10 +102,10 @@ namespace NzbDrone.Core.CustomFormats
                 }
             };
 
-            return MatchFormatTags(info);
+            return ParseCustomFormat(info);
         }
 
-        private List<CustomFormatMatchResult> MatchFormatTags(History.History history)
+        public List<CustomFormat> ParseCustomFormat(History.History history)
         {
             var movie = _movieService.GetMovie(history.MovieId);
             var parsed = _parsingService.ParseMovieInfo(history.SourceTitle, null);
@@ -165,7 +130,7 @@ namespace NzbDrone.Core.CustomFormats
                 }
             };
 
-            return MatchFormatTags(info);
+            return ParseCustomFormat(info);
         }
     }
 }

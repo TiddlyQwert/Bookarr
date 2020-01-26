@@ -3,12 +3,12 @@ using System.Linq;
 using NzbDrone.Core.CustomFormats;
 using Radarr.Http.REST;
 
-namespace NzbDrone.Api.Qualities
+namespace NzbDrone.Api.CustomFormats
 {
     public class CustomFormatResource : RestResource
     {
         public string Name { get; set; }
-        public List<string> FormatTags { get; set; }
+        public List<ICustomFormatSpecification> Specifications { get; set; }
         public string Simplicity { get; set; }
     }
 
@@ -20,7 +20,7 @@ namespace NzbDrone.Api.Qualities
             {
                 Id = model.Id,
                 Name = model.Name,
-                FormatTags = model.FormatTags.Select(t => t.Raw.ToUpper()).ToList(),
+                Specifications = model.Specifications.ToList(),
             };
         }
 
@@ -30,7 +30,7 @@ namespace NzbDrone.Api.Qualities
             {
                 Id = resource.Id,
                 Name = resource.Name,
-                FormatTags = resource.FormatTags.Select(s => new FormatTag(s)).ToList(),
+                Specifications = resource.Specifications.ToList(),
             };
         }
 
