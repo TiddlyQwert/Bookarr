@@ -13,7 +13,7 @@ namespace NzbDrone.Core.CustomFormats
         {
             var filename = (string)movieInfo?.ExtraInfo?.GetValueOrDefault("Filename");
 
-            return MatchString(movieInfo.SimpleReleaseTitle) || MatchString(filename);
+            return MatchString(movieInfo?.SimpleReleaseTitle) || MatchString(filename);
         }
     }
 }

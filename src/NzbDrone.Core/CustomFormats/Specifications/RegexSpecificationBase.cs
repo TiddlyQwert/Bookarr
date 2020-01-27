@@ -1,11 +1,5 @@
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Annotations;
-using NzbDrone.Core.Languages;
-using NzbDrone.Core.Parser;
-using NzbDrone.Core.Parser.Model;
-using NzbDrone.Core.Qualities;
 
 namespace NzbDrone.Core.CustomFormats
 {

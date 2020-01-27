@@ -58,23 +58,23 @@ namespace NzbDrone.Core.CustomFormats
             return matches;
         }
 
-        public List<CustomFormat> ParseCustomFormat(MovieFile file)
+        public List<CustomFormat> ParseCustomFormat(MovieFile movieFile)
         {
             var info = new ParsedMovieInfo
             {
-                MovieTitle = file.Movie.Title,
-                SimpleReleaseTitle = file.GetSceneOrFileName().SimplifyReleaseTitle(),
-                Quality = file.Quality,
-                Languages = file.Languages,
-                ReleaseGroup = file.ReleaseGroup,
-                Edition = file.Edition,
-                Year = file.Movie.Year,
-                ImdbId = file.Movie.ImdbId,
+                MovieTitle = movieFile.Movie.Title,
+                SimpleReleaseTitle = movieFile.GetSceneOrFileName().SimplifyReleaseTitle(),
+                Quality = movieFile.Quality,
+                Languages = movieFile.Languages,
+                ReleaseGroup = movieFile.ReleaseGroup,
+                Edition = movieFile.Edition,
+                Year = movieFile.Movie.Year,
+                ImdbId = movieFile.Movie.ImdbId,
                 ExtraInfo = new Dictionary<string, object>
                 {
-                    { "IndexerFlags", file.IndexerFlags },
-                    { "Size", file.Size },
-                    { "Filename", System.IO.Path.GetFileName(file.RelativePath) }
+                    { "IndexerFlags", movieFile.IndexerFlags },
+                    { "Size", movieFile.Size },
+                    { "Filename", System.IO.Path.GetFileName(movieFile.RelativePath) }
                 }
             };
 

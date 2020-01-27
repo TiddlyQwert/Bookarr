@@ -17,9 +17,9 @@ namespace NzbDrone.Core.Datastore.Migration
     [Migration(168)]
     public class custom_format_rework : NzbDroneMigrationBase
     {
-        public static Regex QualityTagRegex = new Regex(@"^(?<type>R|S|M|E|L|C|I|G)(_((?<m_r>RX)|(?<m_re>RQ)|(?<m_n>N)){0,3})?_(?<value>.*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex QualityTagRegex = new Regex(@"^(?<type>R|S|M|E|L|C|I|G)(_((?<m_r>RX)|(?<m_re>RQ)|(?<m_n>N)){0,3})?_(?<value>.*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        public static Regex SizeTagRegex = new Regex(@"(?<min>\d+(\.\d+)?)\s*<>\s*(?<max>\d+(\.\d+)?)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex SizeTagRegex = new Regex(@"(?<min>\d+(\.\d+)?)\s*<>\s*(?<max>\d+(\.\d+)?)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         protected override void MainDbUpgrade()
         {
