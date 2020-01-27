@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import createProviderSettingsSelector from 'Store/Selectors/createProviderSettingsSelector';
-import { setCustomFormatSpecificationValue, setCustomFormatSpecificationFieldValue, saveCustomFormatSpecification } from 'Store/Actions/settingsActions';
+import { setCustomFormatSpecificationValue, setCustomFormatSpecificationFieldValue, saveCustomFormatSpecification, clearCustomFormatSpecificationPending } from 'Store/Actions/settingsActions';
 import EditSpecificationModalContent from './EditSpecificationModalContent';
 
 function createMapStateToProps() {
@@ -22,7 +22,8 @@ function createMapStateToProps() {
 const mapDispatchToProps = {
   setCustomFormatSpecificationValue,
   setCustomFormatSpecificationFieldValue,
-  saveCustomFormatSpecification
+  saveCustomFormatSpecification,
+  clearCustomFormatSpecificationPending
 };
 
 class EditSpecificationModalContentConnector extends Component {
@@ -38,6 +39,11 @@ class EditSpecificationModalContentConnector extends Component {
     this.props.setCustomFormatSpecificationFieldValue({ name, value });
   }
 
+  onCancelPress = () => {
+    this.props.clearCustomFormatSpecificationPending();
+    this.props.onModalClose();
+  }
+
   onSavePress = () => {
     this.props.saveCustomFormatSpecification({ id: this.props.id });
     this.props.onModalClose();
@@ -50,6 +56,7 @@ class EditSpecificationModalContentConnector extends Component {
     return (
       <EditSpecificationModalContent
         {...this.props}
+        onCancelPress={this.onCancelPress}
         onSavePress={this.onSavePress}
         onInputChange={this.onInputChange}
         onFieldChange={this.onFieldChange}
@@ -63,6 +70,7 @@ EditSpecificationModalContentConnector.propTypes = {
   item: PropTypes.object.isRequired,
   setCustomFormatSpecificationValue: PropTypes.func.isRequired,
   setCustomFormatSpecificationFieldValue: PropTypes.func.isRequired,
+  clearCustomFormatSpecificationPending: PropTypes.func.isRequired,
   saveCustomFormatSpecification: PropTypes.func.isRequired,
   onModalClose: PropTypes.func.isRequired
 };

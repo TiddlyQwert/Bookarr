@@ -29,7 +29,7 @@ export const SAVE_CUSTOM_FORMAT_SPECIFICATION = 'settings/customFormatSpecificat
 export const DELETE_CUSTOM_FORMAT_SPECIFICATION = 'settings/customFormatSpecifications/deleteCustomFormatSpecification';
 export const CLONE_CUSTOM_FORMAT_SPECIFICATION = 'settings/customFormatSpecifications/cloneCustomFormatSpecification';
 export const CLEAR_CUSTOM_FORMAT_SPECIFICATIONS = 'settings/customFormatSpecifications/clearCustomFormatSpecifications';
-
+export const CLEAR_CUSTOM_FORMAT_SPECIFICATION_PENDING = 'settings/customFormatSpecifications/clearCustomFormatSpecificationPending';
 //
 // Action Creators
 
@@ -57,6 +57,8 @@ export const setCustomFormatSpecificationFieldValue = createAction(SET_CUSTOM_FO
 export const cloneCustomFormatSpecification = createAction(CLONE_CUSTOM_FORMAT_SPECIFICATION);
 
 export const clearCustomFormatSpecification = createAction(CLEAR_CUSTOM_FORMAT_SPECIFICATIONS);
+
+export const clearCustomFormatSpecificationPending = createThunk(CLEAR_CUSTOM_FORMAT_SPECIFICATION_PENDING);
 
 //
 // Details
@@ -121,12 +123,25 @@ export default {
         saveData.id = getNextId(getState().settings.customFormatSpecifications.items);
       }
 
-      dispatch(updateItem({ section, ...saveData }));
+      dispatch(batchActions([
+        updateItem({ section, ...saveData }),
+        set({
+          section,
+          pendingChanges: {}
+        })
+      ]));
     },
 
     [DELETE_CUSTOM_FORMAT_SPECIFICATION]: (getState, payload, dispatch) => {
       const id = payload.id;
       return dispatch(removeItem({ section, id }));
+    },
+
+    [CLEAR_CUSTOM_FORMAT_SPECIFICATION_PENDING]: (getState, payload, dispatch) => {
+      return dispatch(set({
+        section,
+        pendingChanges: {}
+      }));
     }
   },
 

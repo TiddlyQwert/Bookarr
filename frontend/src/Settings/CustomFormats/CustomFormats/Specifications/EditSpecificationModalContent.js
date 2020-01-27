@@ -22,7 +22,7 @@ function EditSpecificationModalContent(props) {
     item,
     onInputChange,
     onFieldChange,
-    onModalClose,
+    onCancelPress,
     onSavePress,
     onDeleteSpecificationPress,
     ...otherProps
@@ -38,7 +38,7 @@ function EditSpecificationModalContent(props) {
   } = item;
 
   return (
-    <ModalContent onModalClose={onModalClose}>
+    <ModalContent onModalClose={onCancelPress}>
       <ModalHeader>
         {`${id ? 'Edit' : 'Add'} Condition - ${implementationName}`}
       </ModalHeader>
@@ -125,7 +125,7 @@ function EditSpecificationModalContent(props) {
         }
 
         <Button
-          onPress={onModalClose}
+          onPress={onCancelPress}
         >
           Cancel
         </Button>
@@ -146,7 +146,7 @@ EditSpecificationModalContent.propTypes = {
   item: PropTypes.object.isRequired,
   onInputChange: PropTypes.func.isRequired,
   onFieldChange: PropTypes.func.isRequired,
-  onModalClose: PropTypes.func.isRequired,
+  onCancelPress: PropTypes.func.isRequired,
   onSavePress: PropTypes.func.isRequired,
   onDeleteSpecificationPress: PropTypes.func
 };
