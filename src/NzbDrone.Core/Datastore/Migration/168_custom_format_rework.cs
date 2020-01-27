@@ -32,16 +32,37 @@ namespace NzbDrone.Core.Datastore.Migration
 
         private void UpdateCustomFormats(IDbConnection conn, IDbTransaction tran)
         {
-            var existing = conn.Query<FormatTag167>("SELECT Id, FormatTags FROM CustomFormats");
+            var existing = conn.Query<FormatTag167>("SELECT Id, Name, FormatTags FROM CustomFormats");
 
             var updated = new List<Specification168>();
 
             foreach (var row in existing)
             {
+                var specs = row.FormatTags.Select(ParseFormatTag).ToList();
+
+                // Use format name for spec if only one spec, otherwise use spec type and a digit
+                if (specs.Count == 1)
+                {
+                    specs[0].Name = row.Name;
+                }
+                else
+                {
+                    var groups = specs.GroupBy(x => x.ImplementationName);
+                    foreach (var group in groups)
+                    {
+                        var i = 1;
+                        foreach (var spec in group)
+                        {
+                            spec.Name = $"{spec.ImplementationName} {i}";
+                            i++;
+                        }
+                    }
+                }
+
                 updated.Add(new Specification168
                 {
                     Id = row.Id,
-                    Specifications = row.FormatTags.Select(ParseFormatTag).ToList()
+                    Specifications = specs
                 });
             }
 
@@ -58,8 +79,6 @@ namespace NzbDrone.Core.Datastore.Migration
             }
 
             var result = InitializeSpecification(match);
-
-            result.Name = result.ImplementationName;
             result.Negate = match.Groups["m_n"].Success;
             result.Required = match.Groups["m_re"].Success;
 
@@ -191,6 +210,7 @@ namespace NzbDrone.Core.Datastore.Migration
 
         private class FormatTag167 : ModelBase
         {
+            public string Name { get; set; }
             public List<string> FormatTags { get; set; }
         }
 

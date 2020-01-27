@@ -68,7 +68,26 @@ namespace NzbDrone.Core.Test.Datastore.Migration
     public class custom_format_reworkFixture : MigrationTest<custom_format_rework>
     {
         [Test]
-        public void should_convert_custom_format_row()
+        public void should_convert_custom_format_row_with_one_spec()
+        {
+            var db = WithDapperMigrationTestDb(c =>
+                {
+                    c.Insert.IntoTable("CustomFormats").Row(new
+                    {
+                        Id = 1,
+                        Name = "Test",
+                        FormatTags = new List<string> { @"C_(hello)" }.ToJson()
+                    });
+                });
+
+            var json = db.Query<string>("SELECT Specifications FROM CustomFormats").First();
+
+            ValidateFormatTag(json, "ReleaseTitleSpecification", false, false);
+            json.Should().Contain($"\"name\": \"Test\"");
+        }
+
+        [Test]
+        public void should_convert_custom_format_row_with_two_specs()
         {
             var db = WithDapperMigrationTestDb(c =>
                 {
@@ -84,6 +103,8 @@ namespace NzbDrone.Core.Test.Datastore.Migration
 
             ValidateFormatTag(json, "ReleaseTitleSpecification", false, false);
             ValidateFormatTag(json, "EditionSpecification", false, false);
+            json.Should().Contain($"\"name\": \"Release Title 1\"");
+            json.Should().Contain($"\"name\": \"Edition 1\"");
         }
 
         private void ValidateFormatTag(string json, string type, bool required, bool negated)
